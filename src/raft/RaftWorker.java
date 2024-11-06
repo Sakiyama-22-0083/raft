@@ -11,10 +11,16 @@ public class RaftWorker implements Runnable {
   public List<Node> nodes;
   public BlockingQueue<Message> queues;
 
+  /**
+   * ワーカークラス
+   */
   public RaftWorker() {
     nodes = new ArrayList<Node>();
   }
 
+  /**
+   * 新規ノードを作成し，起動するメソッド
+   */
   public void createNewNode() {
     Node node = new Node(nodes.size() + 1);
     node.setNodeList(nodes);
@@ -23,6 +29,10 @@ public class RaftWorker implements Runnable {
     nodes.add(node);
   }
 
+  /**
+   * バックグラウンド処理メソッド
+   * メッセージの送信やノードの更新を行う．
+   */
   public void run() {
   }
 

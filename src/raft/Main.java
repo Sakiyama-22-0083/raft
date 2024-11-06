@@ -9,7 +9,6 @@ public class Main {
     worker.createNewNode();
     worker.createNewNode();
     worker.run();
-
   }
 
 }

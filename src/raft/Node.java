@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * ノードを表すクラス
+ */
 public class Node extends Thread {
 
   // shared memory of node list between nodes

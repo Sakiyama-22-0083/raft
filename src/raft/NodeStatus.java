@@ -1,5 +1,8 @@
 package raft;
 
+/**
+ * ノードの状態クラス
+ */
 public enum NodeStatus {
 
   FOLLOWER(1),
