@@ -120,7 +120,7 @@ public class Node extends Thread {
   }
 
   /**
-   * タイムアウト
+   * タイムアウト判定メソッド
    * 
    * @return
    */
