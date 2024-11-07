@@ -5,8 +5,8 @@ package raft.messages;
  */
 public class HeartbeatMessage extends Message {
 
-  public long leaderId;
-  public int term;
+  public long leaderId;// リーダーのID
+  public int term;// 任期
 
   public HeartbeatMessage(long leaderId, int term) {
     this.leaderId = leaderId;
@@ -29,8 +29,7 @@ public class HeartbeatMessage extends Message {
    */
   @Override
   public String toString() {
-    return String.format("HeartbeatMessage[ leader=%d, term=%d ]", leaderId,
-        term);
+    return String.format("HeartbeatMessage[ leader=%d, term=%d ]", leaderId, term);
   }
 
 }

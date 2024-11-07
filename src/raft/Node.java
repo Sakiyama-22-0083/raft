@@ -31,45 +31,79 @@ public class Node extends Thread {
   public int currentTerm = 0; // incrémenté à chaque fois que le timeout expire
                               // lorsque follower
   public long votedFor = -1;
-  public int nbVotes = 0;
+  public int numOfVotes = 0;
 
-  public void setNodeList(List<Node> nodeList) {
-    this.nodeList = nodeList;
-  }
-
+  /**
+   * デフォルトのコンストラクタ
+   * 
+   * @param id
+   */
   public Node(long id) {
     this(id, NodeStatus.FOLLOWER);
   }
 
+  /**
+   * 状態を指定するコンストラクタ
+   * 
+   * @param id
+   * @param status
+   */
   public Node(long id, NodeStatus status) {
     this.id = id;
     this.status = status;
   }
 
+  /**
+   * ノードリストのセッターメソッド
+   * 
+   * @param nodeList
+   */
+  public void setNodeList(List<Node> nodeList) {
+    this.nodeList = nodeList;
+  }
+
+  /**
+   * 状態を変更するメソッド
+   * 
+   * @param status
+   */
   public void changeStatus(NodeStatus status) {
     this.status = status;
   }
 
+  /**
+   * 状態をアップグレードするメソッド
+   * フォロワーは候補者に，候補者はリーダーに昇格する．
+   */
   private void upgrade() {
     if (status == NodeStatus.FOLLOWER) {
-      System.out.println(toString() + " upgraded to CANDIDATE");
       changeStatus(NodeStatus.CANDIDATE);
+      System.out.println(toString() + " upgraded to CANDIDATE");
     } else if (status == NodeStatus.CANDIDATE) {
-      System.out.println(toString() + " upgraded to LEADER");
       changeStatus(NodeStatus.LEADER);
+      System.out.println(toString() + " upgraded to LEADER");
     }
   }
 
+  /**
+   * 状態をダウングレードするメソッド
+   * リーダーは候補者に，候補者はフォロワーに降格する．
+   */
   private void downgrade() {
     if (status == NodeStatus.LEADER) {
-      System.out.println(toString() + " downgraded to CANDIDATE");
       changeStatus(NodeStatus.CANDIDATE);
+      System.out.println(toString() + " downgraded to CANDIDATE");
     } else if (status == NodeStatus.CANDIDATE) {
-      System.out.println(toString() + " downgraded to FOLLOWER");
       changeStatus(NodeStatus.FOLLOWER);
+      System.out.println(toString() + " downgraded to FOLLOWER");
     }
   }
 
+  /**
+   * ランダムなタイムアウト時間を生成するメソッド
+   * 
+   * @return
+   */
   private double randomTimeout() {
     if (status == NodeStatus.LEADER) {
       return 2000 + (Math.random() * (3000 - 2000));
@@ -77,11 +111,19 @@ public class Node extends Thread {
     return 4000 + (Math.random() * (6000 - 4000));
   }
 
+  /**
+   * タイムアウト時間をリセットするメソッド
+   */
   private void newTimeout() {
     startTime = RaftUtils.currentTimestamp();
     timeout = randomTimeout();
   }
 
+  /**
+   * タイムアウト
+   * 
+   * @return
+   */
   private boolean timeoutExpired() {
     if (timeout == 0) {
       return false;
@@ -89,6 +131,9 @@ public class Node extends Thread {
     return RaftUtils.currentTimestamp() > startTime + timeout;
   }
 
+  /**
+   * ノード起動メソッド
+   */
   @Override
   public void run() {
     System.out.println(toString() + " started");
@@ -108,72 +153,96 @@ public class Node extends Thread {
     }
   }
 
+  /**
+   * メッセージ取得メソッド
+   */
   private void readMessages() {
     Message msg;
-
+    // メッセージがなくなるまで読み取る
     while ((msg = queue.poll()) != null) {
       if (msg.getClass() == HeartbeatMessage.class) {
-        HeartbeatMessage hm = (HeartbeatMessage) msg;
+        HeartbeatMessage heartbeatMsg = (HeartbeatMessage) msg;
+
         if (status != NodeStatus.LEADER) {
-          System.out.println(toString() + " received: " + hm);
+          // リーダー以外がリーダーのメッセージを受け取った場合
           newTimeout();
-        } else if (hm.leaderId != id && status != NodeStatus.LEADER) {
-          System.out
-              .println(String
-                  .format(
-                      "%d - I'm the leader and I received a heartbeat from %d: downgrading...",
-                      id, hm.leaderId));
+          System.out.println(toString() + " received: " + heartbeatMsg);
+        } else if (heartbeatMsg.leaderId != id) {
+          // 他のリーダーからメッセージを受け取った場合
           downgrade();
+          System.out.println(String.format(
+              "%d - I'm the leader and I received a heartbeat from %d: downgrading...",
+              id, heartbeatMsg.leaderId));
         } else {
-          System.out.println(toString() + " received my: " + hm);
+          // リーダーが自身のメッセージを受け取った場合
           newTimeout();
+          System.out.println(toString() + " received my: " + heartbeatMsg);
         }
       } else if (msg.getClass() == VoteMessage.class) {
-        VoteMessage vm = (VoteMessage) msg;
-        System.out.println(toString() + " received: " + vm);
+        VoteMessage voteMsg = (VoteMessage) msg;
 
-        if (vm.voteGranted) {
-          nbVotes++;
+        System.out.println(toString() + " received: " + voteMsg);
+
+        if (voteMsg.voteGranted) {
+          numOfVotes++;
         }
       } else if (msg.getClass() == RequestVoteMessage.class) {
-        RequestVoteMessage rvm = (RequestVoteMessage) msg;
+        RequestVoteMessage requestVoteMsg = (RequestVoteMessage) msg;
 
-        System.out.println(toString() + " received: " + rvm);
+        System.out.println(toString() + " received: " + requestVoteMsg);
 
-        if (rvm.term < currentTerm) {
-          sendMessageTo(rvm.candidateId, VoteMessage.write(false, rvm.term));
-        } else if (votedFor == -1 || rvm.candidateId == -1) {
-          votedFor = rvm.candidateId;
-          sendMessageTo(rvm.candidateId, VoteMessage.write(true, rvm.term));
+        if (requestVoteMsg.term < currentTerm) {
+          // 過去の任期のリクエストには投票しない．
+          sendMessageTo(requestVoteMsg.candidateId, VoteMessage.write(false, requestVoteMsg.term));
+        } else if (votedFor == -1 || requestVoteMsg.candidateId == -1) {
+          // まだ投票をしていなければ投票する．
+          votedFor = requestVoteMsg.candidateId;
+          sendMessageTo(requestVoteMsg.candidateId, VoteMessage.write(true, requestVoteMsg.term));
         } else {
-          sendMessageTo(rvm.candidateId, VoteMessage.write(false, rvm.term));
+          // すでに投票している場合，投票しない．
+          sendMessageTo(requestVoteMsg.candidateId, VoteMessage.write(false, requestVoteMsg.term));
         }
         newTimeout();
       }
     }
   }
 
+  /**
+   * リーダーの行動メソッド
+   * タイムアウトするとハートビートメッセージを送る
+   */
   private void leaderBehaviour() {
     if (timeoutExpired()) {
       broadcastMessage(HeartbeatMessage.write(id, currentTerm));
     }
   }
 
+  /**
+   * フォロワーの行動メソッド
+   * ハートビートメッセージを受けるとタイムアウト時間がリセットされるので
+   * タイムアウトした時はリーダーとの通信ができていないことを表す．
+   * その場合，任期をインクリメントし，候補者として他のノードに投票リクエストを送る．
+   */
   private void followerBehaviour() {
     if (timeoutExpired()) {
       currentTerm++;
-      nbVotes = 0;
+      numOfVotes = 0;
       upgrade();
       broadcastMessage(RequestVoteMessage.write(id, currentTerm));
       newTimeout();
     }
   }
 
+  /**
+   * 候補者の行動メソッド
+   * 過半数の投票が得られれば，リーダに昇格する．
+   * タイムアウトするとフォロワーに戻る．
+   */
   private void candidateBehaviour() {
-    if (nbVotes >= (nodeList.size() / 2)) {
-      System.out.println(toString() + " got majority (" + nbVotes + " votes)");
+    if (numOfVotes >= (nodeList.size() / 2)) {
       upgrade();
-      nbVotes = 0;
+      System.out.println(toString() + " got majority (" + numOfVotes + " votes)");
+      numOfVotes = 0;
       newTimeout();
     }
 
@@ -183,30 +252,49 @@ public class Node extends Thread {
     }
   }
 
+  /**
+   * 指定したノードにメッセージを追加するメソッド
+   * 
+   * @param nodeId
+   * @param message
+   */
   private void sendMessageTo(long nodeId, Message message) {
     synchronized (nodeList) {
-      for (int i = 0; i < nodeList.size(); i++) {
-        if (nodeList.get(i).id == nodeId) {
-          nodeList.get(i).appendMessage(message);
+      for (Node node : nodeList) {
+        if (node.id == nodeId) {
+          node.appendMessage(message);
         }
       }
     }
   }
 
+  /**
+   * 全てのノードにメッセージを追加するメソッド
+   * 
+   * @param message
+   */
   private void broadcastMessage(Message message) {
     synchronized (nodeList) {
-      for (int i = 0; i < nodeList.size(); i++) {
-        nodeList.get(i).appendMessage(message);
+      for (Node node : nodeList) {
+        node.appendMessage(message);
       }
     }
   }
 
+  /**
+   * メッセージを追加するメソッド
+   * 
+   * @param message
+   */
   public void appendMessage(Message message) {
     queue.add(message);
   }
 
+  /**
+   * ノードのidを文字列で返すメソッド
+   */
   public String toString() {
-    return String.format("Node[ id=%d ]", id);
+    return String.format("Node[ id=%d ]", id);
   }
 
 }

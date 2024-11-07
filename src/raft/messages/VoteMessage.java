@@ -29,8 +29,7 @@ public class VoteMessage extends Message {
    */
   @Override
   public String toString() {
-    return String.format("VoteMessage[ voteGranted=%b, term=%d ]", voteGranted,
-        term);
+    return String.format("VoteMessage[ voteGranted=%b, term=%d ]", voteGranted, term);
   }
 
 }
