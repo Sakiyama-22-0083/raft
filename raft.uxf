@@ -5,40 +5,65 @@
     <id>UMLClass</id>
     <coordinates>
       <x>0</x>
-      <y>470</y>
-      <w>140</w>
-      <h>30</h>
+      <y>1050</y>
+      <w>310</w>
+      <h>120</h>
     </coordinates>
-    <panel_attributes>HeartbeatMessage</panel_attributes>
+    <panel_attributes>HeartbeatMessage
+--
++ leaderId: long
++ term: int
+--
++ HeartbeatMessate(leaderId: long, term: int)
++ write(leaderId: long, term: int): Message
++ toString(): String</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>150</x>
-      <y>470</y>
-      <w>160</w>
-      <h>30</h>
+      <x>330</x>
+      <y>1060</y>
+      <w>340</w>
+      <h>180</h>
     </coordinates>
-    <panel_attributes>RequestVoteMessage</panel_attributes>
+    <panel_attributes>RequestVoteMessage
+--
++ leaderId: long
++ term: int
+--
++ RequestVoteMessage(nodeId: long, term: int)
++ write(nodeId: long, term: int): Message
++ getCandidateId(): long
++ setCandidateId(candidateId: long): void
++ getTerm(): double
++ setTerm(term: int): void
++ toString(): String</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>320</x>
-      <y>470</y>
-      <w>100</w>
-      <h>30</h>
+      <x>690</x>
+      <y>1060</y>
+      <w>390</w>
+      <h>120</h>
     </coordinates>
-    <panel_attributes>VoteMessage</panel_attributes>
+    <panel_attributes>VoteMessage
+--
++ voteGranted: boolean
++ term: int
+--
++ HeartbeatMessate(voteGranted: boolean, term: int)
++ write(voteGranted: boolean, term: int): Message
++ toString(): String</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>190</x>
-      <y>380</y>
+      <x>460</x>
+      <y>840</y>
       <w>100</w>
       <h>30</h>
     </coordinates>
@@ -48,188 +73,241 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>230</x>
-      <y>400</y>
+      <x>500</x>
+      <y>860</y>
       <w>30</w>
-      <h>90</h>
+      <h>220</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
+    <additional_attributes>10.0;10.0;10.0;200.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>60</x>
-      <y>440</y>
-      <w>200</w>
-      <h>50</h>
-    </coordinates>
-    <panel_attributes>lt=-</panel_attributes>
-    <additional_attributes>180.0;10.0;10.0;10.0;10.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>230</x>
-      <y>440</y>
-      <w>160</w>
-      <h>50</h>
-    </coordinates>
-    <panel_attributes>lt=-</panel_attributes>
-    <additional_attributes>10.0;10.0;140.0;10.0;140.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>320</x>
-      <y>380</y>
-      <w>100</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>NodeStatus</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>390</x>
-      <y>100</y>
-      <w>100</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>Main</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>390</x>
-      <y>280</y>
-      <w>100</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>Node</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>450</x>
-      <y>380</y>
-      <w>100</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>Log</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>450</x>
-      <y>470</y>
-      <w>100</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>LogEntry</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>570</x>
-      <y>380</y>
-      <w>100</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>RaftUtils</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>390</x>
-      <y>190</y>
-      <w>100</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>RaftWorker</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>490</x>
-      <y>400</y>
-      <w>30</w>
-      <h>90</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>360</x>
-      <y>300</y>
-      <w>100</w>
+      <x>140</x>
+      <y>970</y>
+      <w>390</w>
       <h>100</h>
     </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>80.0;10.0;80.0;60.0;10.0;60.0;10.0;80.0</additional_attributes>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>370.0;10.0;10.0;10.0;10.0;80.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>230</x>
-      <y>350</y>
-      <w>160</w>
-      <h>50</h>
+      <x>500</x>
+      <y>970</y>
+      <w>410</w>
+      <h>110</h>
     </coordinates>
     <panel_attributes>lt=-</panel_attributes>
-    <additional_attributes>140.0;10.0;10.0;10.0;10.0;30.0</additional_attributes>
+    <additional_attributes>10.0;10.0;390.0;10.0;390.0;90.0</additional_attributes>
   </element>
   <element>
-    <id>Relation</id>
+    <id>UMLClass</id>
     <coordinates>
-      <x>430</x>
-      <y>350</y>
-      <w>90</w>
-      <h>50</h>
+      <x>800</x>
+      <y>840</y>
+      <w>100</w>
+      <h>30</h>
     </coordinates>
-    <panel_attributes>lt=-</panel_attributes>
-    <additional_attributes>10.0;10.0;70.0;10.0;70.0;30.0</additional_attributes>
+    <panel_attributes>NodeStatus
+</panel_attributes>
+    <additional_attributes/>
   </element>
   <element>
-    <id>Relation</id>
+    <id>UMLClass</id>
     <coordinates>
-      <x>490</x>
-      <y>350</y>
-      <w>150</w>
-      <h>50</h>
+      <x>960</x>
+      <y>0</y>
+      <w>200</w>
+      <h>60</h>
     </coordinates>
-    <panel_attributes>lt=-</panel_attributes>
-    <additional_attributes>10.0;10.0;130.0;10.0;130.0;30.0</additional_attributes>
+    <panel_attributes>Main
+--
+--
++ main(args: String[]): void</panel_attributes>
+    <additional_attributes/>
   </element>
   <element>
-    <id>Relation</id>
+    <id>UMLClass</id>
     <coordinates>
-      <x>430</x>
-      <y>210</y>
-      <w>30</w>
+      <x>860</x>
+      <y>280</y>
+      <w>410</w>
+      <h>480</h>
+    </coordinates>
+    <panel_attributes>Node
+--
+# nodeList: List&lt;Node&gt;
++ id: long
++ status: NodeStatus
++ startTime: double
++ timeout: double
++ queue: BlockingQueue&lt;Message&gt;
++ workingNodes: long[]
++ currentTerm: int
++ votedFor: long
++ numOfVotes: int
+--
++ Node(id: long)
++ Node(id: long, status: NodeStatus)
++ setNodeList(nodeList: List&lt;Node&gt;): void
++ changeStatus(status: NodeStatus): void
+- upgrade(): void
+- downgrade(): void
+- randomTimeout(): double
+- newTimeout(): void
+- timeoutExpired(): boolean
++ run(): void
+- readMessages(): void
+- leaderBehaviour(): void
+- followerBehaviour(): void
+- candidateBehaviour: void
+- sendMessageTo(nodeId: long, message: Message): void
+- broadcastMessage(message: Message): void
++ appendMessage(message: Message): void
++ toString(): String</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1500</x>
+      <y>840</y>
+      <w>190</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>Log
+--
+# log: List&lt;LogEntry&gt;
+--
++ Log()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1440</x>
+      <y>990</y>
+      <w>290</w>
       <h>90</h>
     </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
+    <panel_attributes>LogEntry
+--
+# command: String
+# term: int
+--
++ LogEntry(command: String, term: int)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1160</x>
+      <y>840</y>
+      <w>220</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>RaftUtils
+--
+--
++ currentTimeStamp():double</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>930</x>
+      <y>110</y>
+      <w>270</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>RaftWorker
+--
++ nodes: List&lt;Node&gt;
++ queue: BlockingQueue&lt;Message&gt;
+--
++ RaftWorker()
++ createNewNode(): void
++ run(): void</panel_attributes>
+    <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>430</x>
-      <y>120</y>
+      <x>1580</x>
+      <y>900</y>
       <w>30</w>
-      <h>90</h>
+      <h>110</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>840</x>
+      <y>750</y>
+      <w>230</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>210.0;10.0;210.0;50.0;10.0;50.0;10.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>500</x>
+      <y>790</y>
+      <w>530</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>510.0;10.0;10.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1040</x>
+      <y>790</y>
+      <w>240</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>10.0;10.0;220.0;10.0;220.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1050</x>
+      <y>220</y>
+      <w>30</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1050</x>
+      <y>50</y>
+      <w>30</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1180</x>
+      <y>790</y>
+      <w>430</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>10.0;10.0;410.0;10.0;410.0;50.0</additional_attributes>
   </element>
 </diagram>
