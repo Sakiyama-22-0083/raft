@@ -27,7 +27,8 @@ public class Node extends Thread {
   public int currentTerm = 0;// 現在の任期
   public long votedFor = -1;// 投票したノードのID(すでに投票していれば-1)
   public int numOfVotes = 0;// 自分に投票したノードの数
-  public String logFilePath;
+  public String logFilePath;// ログのファイルパス
+  private boolean stopped = false;// ノードを停止するためのフラグ
 
   /**
    * デフォルトのコンストラクタ
@@ -155,8 +156,7 @@ public class Node extends Thread {
 
     newTimeout();
 
-    // TODO: stopメソッドを作成し，このwhile文を停止できるようにする．
-    while (true) {
+    while (!stopped) {
       readMessages();
 
       if (status == NodeStatus.FOLLOWER) {
@@ -167,6 +167,13 @@ public class Node extends Thread {
         leaderBehaviour();
       }
     }
+  }
+
+  /**
+   * ノードを停止するメソッド
+   */
+  public void shutdown() {
+    stopped = true;
   }
 
   /**

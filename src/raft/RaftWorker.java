@@ -39,6 +39,13 @@ public class RaftWorker implements Runnable {
   public void run() {
   }
 
-  // TODO: 全てのノードでノード停止メソッドを呼び出すメソッドを作成する．
+  /**
+   * 全てのノードを停止するメソッド
+   */
+  public void allNodesStop() {
+    for (Node node : nodes) {
+      node.shutdown();
+    }
+  }
 
 }

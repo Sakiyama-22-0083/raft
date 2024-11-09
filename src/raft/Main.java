@@ -7,15 +7,23 @@ import java.io.BufferedWriter;
 
 public class Main {
   private static String logFilePath = "log/output.txt";
+  private static int time = 6000;// 実行時間[ms]
 
   public static void main(String[] args) {
     resetFile(logFilePath);
     RaftWorker worker = new RaftWorker(logFilePath);
+
     for (int i = 0; i < 3; i++) {
       worker.createNewNode();
     }
+    // timeの間実行する．
     worker.run();
-    // TODO: 一定時間後にworkerクラスのノード停止メソッドを呼び出す
+    try {
+      Thread.sleep(time);
+    } catch (InterruptedException e) {
+      System.err.println("エラーが発生しました: " + e.getMessage());
+    }
+    worker.allNodesStop();
   }
 
   /**
