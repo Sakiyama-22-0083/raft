@@ -13,8 +13,10 @@ public class RaftWorker implements Runnable {
 
   public List<Node> nodes;
   public BlockingQueue<Message> queues;
+  private String logFilePath;
 
-  public RaftWorker() {
+  public RaftWorker(String logFilePath) {
+    this.logFilePath = logFilePath;
     nodes = new ArrayList<Node>();
   }
 
@@ -24,6 +26,7 @@ public class RaftWorker implements Runnable {
   public void createNewNode() {
     Node node = new Node(nodes.size() + 1);
     node.setNodeList(nodes);
+    node.setLogFile(logFilePath);
     node.start();
 
     nodes.add(node);
@@ -35,5 +38,7 @@ public class RaftWorker implements Runnable {
    */
   public void run() {
   }
+
+  // TODO: 全てのノードでノード停止メソッドを呼び出すメソッドを作成する．
 
 }

@@ -5,6 +5,9 @@ import raft.messages.VoteMessage;
 import raft.messages.HeartbeatMessage;
 import raft.messages.RequestVoteMessage;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -24,6 +27,7 @@ public class Node extends Thread {
   public int currentTerm = 0;// 現在の任期
   public long votedFor = -1;// 投票したノードのID(すでに投票していれば-1)
   public int numOfVotes = 0;// 自分に投票したノードの数
+  public String logFilePath;
 
   /**
    * デフォルトのコンストラクタ
@@ -54,6 +58,10 @@ public class Node extends Thread {
     this.nodeList = nodeList;
   }
 
+  public void setLogFile(String logFilePath) {
+    this.logFilePath = logFilePath;
+  }
+
   /**
    * 状態を変更するメソッド
    * 
@@ -70,10 +78,16 @@ public class Node extends Thread {
   private void upgrade() {
     if (status == NodeStatus.FOLLOWER) {
       changeStatus(NodeStatus.CANDIDATE);
-      System.out.println(toString() + " upgraded to CANDIDATE");
+      // ログを残す
+      String logData = toString() + " upgraded to CANDIDATE";
+      writeData(logFilePath, logData);
+      System.out.println(logData);
     } else if (status == NodeStatus.CANDIDATE) {
       changeStatus(NodeStatus.LEADER);
-      System.out.println(toString() + " upgraded to LEADER");
+      // ログを残す
+      String logData = toString() + " upgraded to LEADER";
+      writeData(logFilePath, logData);
+      System.out.println(logData);
     }
   }
 
@@ -84,10 +98,16 @@ public class Node extends Thread {
   private void downgrade() {
     if (status == NodeStatus.LEADER) {
       changeStatus(NodeStatus.CANDIDATE);
-      System.out.println(toString() + " downgraded to CANDIDATE");
+      // ログを残す
+      String logData = toString() + " downgraded to CANDIDATE";
+      writeData(logFilePath, logData);
+      System.out.println(logData);
     } else if (status == NodeStatus.CANDIDATE) {
       changeStatus(NodeStatus.FOLLOWER);
-      System.out.println(toString() + " downgraded to FOLLOWER");
+      // ログを残す
+      String logData = toString() + " downgraded to FOLLOWER";
+      writeData(logFilePath, logData);
+      System.out.println(logData);
     }
   }
 
@@ -128,10 +148,14 @@ public class Node extends Thread {
    */
   @Override
   public void run() {
-    System.out.println(toString() + " started");
+    // ログを残す
+    String logData = toString() + " started";
+    writeData(logFilePath, logData);
+    System.out.println(logData);
 
     newTimeout();
 
+    // TODO: stopメソッドを作成し，このwhile文を停止できるようにする．
     while (true) {
       readMessages();
 
@@ -158,30 +182,42 @@ public class Node extends Thread {
         if (status != NodeStatus.LEADER) {
           // リーダー以外がリーダーのメッセージを受け取った場合
           newTimeout();
-          System.out.println(toString() + " received: " + heartbeatMsg);
+          // ログを残す
+          String logData = toString() + " received: " + heartbeatMsg;
+          writeData(logFilePath, logData);
+          System.out.println(logData);
         } else if (heartbeatMsg.leaderId != id) {
           // 他のリーダーからメッセージを受け取った場合
           downgrade();
-          System.out.println(String.format(
-              "%d - I'm the leader and I received a heartbeat from %d: downgrading...",
-              id, heartbeatMsg.leaderId));
+          // ログを残す
+          String logData = String.format("%d - I'm the leader and I received a heartbeat from %d: downgrading...", id,
+              heartbeatMsg.leaderId);
+          writeData(logFilePath, logData);
+          System.out.println(logData);
         } else {
           // リーダーが自身のメッセージを受け取った場合
           newTimeout();
-          System.out.println(toString() + " received my: " + heartbeatMsg);
+          // ログを残す
+          String logData = toString() + " received my: " + heartbeatMsg;
+          writeData(logFilePath, logData);
+          System.out.println(logData);
         }
       } else if (msg.getClass() == VoteMessage.class) {
         VoteMessage voteMsg = (VoteMessage) msg;
-
-        System.out.println(toString() + " received: " + voteMsg);
+        // ログを残す
+        String logData = toString() + " received: " + voteMsg;
+        writeData(logFilePath, logData);
+        System.out.println(logData);
 
         if (voteMsg.voteGranted) {
           numOfVotes++;
         }
       } else if (msg.getClass() == RequestVoteMessage.class) {
         RequestVoteMessage requestVoteMsg = (RequestVoteMessage) msg;
-
-        System.out.println(toString() + " received: " + requestVoteMsg);
+        // ログを残す
+        String logData = toString() + " received: " + requestVoteMsg;
+        writeData(logFilePath, logData);
+        System.out.println(logData);
 
         if (requestVoteMsg.term < currentTerm) {
           // 過去の任期のリクエストには投票しない．
@@ -233,14 +269,21 @@ public class Node extends Thread {
   private void candidateBehaviour() {
     if (numOfVotes >= (nodeList.size() / 2)) {
       upgrade();
-      System.out.println(toString() + " got majority (" + numOfVotes + " votes)");
+      // ログを残す
+      String logData = toString() + " got majority (" + numOfVotes + " votes)";
+      writeData(logFilePath, logData);
+      System.out.println(logData);
+
       numOfVotes = 0;
       newTimeout();
     }
 
     if (timeoutExpired()) {
-      System.out.println(toString() + " timeout expired to become leader");
       downgrade();
+      // ログを残す
+      String logData = toString() + " timeout expired to become leader";
+      writeData(logFilePath, logData);
+      System.out.println(logData);
     }
   }
 
@@ -287,6 +330,22 @@ public class Node extends Thread {
    */
   public String toString() {
     return String.format("Node[ id=%d ]", id);
+  }
+
+  /**
+   * データを書き込むメソッド
+   * 第1引数のファイルに第2引数の内容を追記する．
+   * 
+   * @param logFilePath
+   * @param data
+   */
+  private void writeData(String logFilePath, String data) {
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFilePath, true))) {
+      writer.write(data);
+      writer.newLine();
+    } catch (IOException e) {
+      System.err.println("エラーが発生しました: " + e.getMessage());
+    }
   }
 
 }
