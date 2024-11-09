@@ -3,11 +3,10 @@ package raft;
 public class Main {
 
   public static void main(String[] args) {
-
     RaftWorker worker = new RaftWorker();
-    worker.createNewNode();
-    worker.createNewNode();
-    worker.createNewNode();
+    for (int i = 0; i < 3; i++) {
+      worker.createNewNode();
+    }
     worker.run();
   }
 

@@ -1,7 +1,7 @@
 package raft;
 
 /**
- * ノードの状態
+ * ノードの状態を表す列挙型クラス
  */
 public enum NodeStatus {
 

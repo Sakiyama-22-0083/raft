@@ -13,25 +13,17 @@ import java.util.concurrent.LinkedBlockingQueue;
  * ノードを表すクラス
  */
 public class Node extends Thread {
-
-  // shared memory of node list between nodes
-  protected List<Node> nodeList;
-
   public long id;
   public NodeStatus status;
-
-  // timeout management
-  public double startTime;
-  public double timeout;
-
-  // message queue
+  protected List<Node> nodeList;// 他ノードのリスト
+  public double startTime;// タイムアウトの開始時間
+  public double timeout;// タイムアウト時間
+  // 受け取ったメッセージのキュー
   public BlockingQueue<Message> queue = new LinkedBlockingQueue<Message>();
-
   public long[] workingNodes;
-  public int currentTerm = 0; // incrémenté à chaque fois que le timeout expire
-                              // lorsque follower
-  public long votedFor = -1;
-  public int numOfVotes = 0;
+  public int currentTerm = 0;// 現在の任期
+  public long votedFor = -1;// 投票したノードのID(すでに投票していれば-1)
+  public int numOfVotes = 0;// 自分に投票したノードの数
 
   /**
    * デフォルトのコンストラクタ

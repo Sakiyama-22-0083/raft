@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * Raftの管理クラス
+ */
 public class RaftWorker implements Runnable {
 
   public List<Node> nodes;
   public BlockingQueue<Message> queues;
 
-  /**
-   * ワーカークラス
-   */
   public RaftWorker() {
     nodes = new ArrayList<Node>();
   }
