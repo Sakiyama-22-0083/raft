@@ -5,10 +5,10 @@ import raft.messages.VoteMessage;
 import raft.messages.HeartbeatMessage;
 import raft.messages.RequestVoteMessage;
 
-import java.io.BufferedWriter;
+import java.util.List;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
+import java.io.BufferedWriter;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -184,62 +184,86 @@ public class Node extends Thread {
     // メッセージがなくなるまで読み取る
     while ((msg = queue.poll()) != null) {
       if (msg.getClass() == HeartbeatMessage.class) {
-        HeartbeatMessage heartbeatMsg = (HeartbeatMessage) msg;
-
-        if (status != NodeStatus.LEADER) {
-          // リーダー以外がリーダーのメッセージを受け取った場合
-          newTimeout();
-          // ログを残す
-          String logData = toString() + " received: " + heartbeatMsg;
-          writeData(logFilePath, logData);
-          System.out.println(logData);
-        } else if (heartbeatMsg.leaderId != id) {
-          // 他のリーダーからメッセージを受け取った場合
-          downgrade();
-          // ログを残す
-          String logData = String.format("%d - I'm the leader and I received a heartbeat from %d: downgrading...", id,
-              heartbeatMsg.leaderId);
-          writeData(logFilePath, logData);
-          System.out.println(logData);
-        } else {
-          // リーダーが自身のメッセージを受け取った場合
-          newTimeout();
-          // ログを残す
-          String logData = toString() + " received my: " + heartbeatMsg;
-          writeData(logFilePath, logData);
-          System.out.println(logData);
-        }
+        readHeartBeatMessages(msg);
       } else if (msg.getClass() == VoteMessage.class) {
-        VoteMessage voteMsg = (VoteMessage) msg;
-        // ログを残す
-        String logData = toString() + " received: " + voteMsg;
-        writeData(logFilePath, logData);
-        System.out.println(logData);
-
-        if (voteMsg.voteGranted) {
-          numOfVotes++;
-        }
+        readVoteMessages(msg);
       } else if (msg.getClass() == RequestVoteMessage.class) {
-        RequestVoteMessage requestVoteMsg = (RequestVoteMessage) msg;
-        // ログを残す
-        String logData = toString() + " received: " + requestVoteMsg;
-        writeData(logFilePath, logData);
-        System.out.println(logData);
-
-        if (requestVoteMsg.term < currentTerm) {
-          // 過去の任期のリクエストには投票しない．
-          sendMessageTo(requestVoteMsg.candidateId, VoteMessage.write(false, requestVoteMsg.term));
-        } else if (votedFor == -1 || requestVoteMsg.candidateId == -1) {
-          // まだ投票をしていなければ投票する．
-          votedFor = requestVoteMsg.candidateId;
-          sendMessageTo(requestVoteMsg.candidateId, VoteMessage.write(true, requestVoteMsg.term));
-        } else {
-          // すでに投票している場合，投票しない．
-          sendMessageTo(requestVoteMsg.candidateId, VoteMessage.write(false, requestVoteMsg.term));
-        }
-        newTimeout();
+        readRequestsVoteMessages(msg);
       }
     }
+  }
+
+  /**
+   * ハートビートメッセージを読み取るメソッド
+   * 
+   * @param msg
+   */
+  private void readHeartBeatMessages(Message msg) {
+    HeartbeatMessage heartbeatMsg = (HeartbeatMessage) msg;
+
+    if (status != NodeStatus.LEADER) {// リーダー以外がリーダーのメッセージを受け取った場合
+      newTimeout();
+      // ログを残す
+      String logData = toString() + " received: " + heartbeatMsg;
+      writeData(logFilePath, logData);
+      System.out.println(logData);
+    } else if (heartbeatMsg.leaderId != id) {// 他のリーダーからメッセージを受け取った場合
+      downgrade();
+      // ログを残す
+      String logData = String.format("%d - I'm the leader and I received a heartbeat from %d: downgrading...", id,
+          heartbeatMsg.leaderId);
+      writeData(logFilePath, logData);
+      System.out.println(logData);
+    } else {// リーダーが自身のメッセージを受け取った場合
+      newTimeout();
+      // ログを残す
+      String logData = toString() + " received my: " + heartbeatMsg;
+      writeData(logFilePath, logData);
+      System.out.println(logData);
+    }
+  }
+
+  /**
+   * 投票メッセージを読み取るメソッド
+   * 
+   * @param msg
+   */
+  private void readVoteMessages(Message msg) {
+    VoteMessage voteMsg = (VoteMessage) msg;
+    // ログを残す
+    String logData = toString() + " received: " + voteMsg;
+    writeData(logFilePath, logData);
+    System.out.println(logData);
+
+    if (voteMsg.voteGranted) {
+      numOfVotes++;
+    }
+  }
+
+  /**
+   * 投票リクエストメッセージを読み取るメソッド
+   * 
+   * @param msg
+   */
+  private void readRequestsVoteMessages(Message msg) {
+    RequestVoteMessage requestVoteMsg = (RequestVoteMessage) msg;
+    // ログを残す
+    String logData = toString() + " received: " + requestVoteMsg;
+    writeData(logFilePath, logData);
+    System.out.println(logData);
+
+    if (requestVoteMsg.term < currentTerm) {
+      // 過去の任期のリクエストには投票しない．
+      sendMessageTo(requestVoteMsg.candidateId, VoteMessage.write(false, requestVoteMsg.term));
+    } else if (votedFor == -1 || requestVoteMsg.candidateId == -1) {
+      // まだ投票をしていなければ投票する．
+      votedFor = requestVoteMsg.candidateId;
+      sendMessageTo(requestVoteMsg.candidateId, VoteMessage.write(true, requestVoteMsg.term));
+    } else {
+      // すでに投票している場合，投票しない．
+      sendMessageTo(requestVoteMsg.candidateId, VoteMessage.write(false, requestVoteMsg.term));
+    }
+    newTimeout();
   }
 
   /**
